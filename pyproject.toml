@@ -1,0 +1,24 @@
+[project]
+name = "vnpy_gatewaykit"
+version = "0.1.0"
+description = "Broker-agnostic mixins for VeighNa (vnpy) gateway implementations — plumbing extracted from vnpy_futu, meant to be reused by future gateway packages (e.g. vnpy_longbridge)."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "vnpy>=4.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["vnpy_gatewaykit"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
