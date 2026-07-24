@@ -35,3 +35,34 @@ class NonBlockingConnectMixin:
             f"{type(self).__name__} must implement _connect(self, setting) "
             f"— NonBlockingConnectMixin only provides the non-blocking connect() wrapper."
         )
+
+
+class NonBlockingSubscribeMixin:
+    """
+    Same rationale as NonBlockingConnectMixin, for subscribe(). A broker SDK's
+    subscribe is a synchronous request/response round-trip to the daemon
+    (futu OpenD, uSMART WS, …). subscribe() is routinely called from a Qt slot
+    on the GUI thread — the ChartWizard subscribes the charted symbol in its
+    EVENT_CHART_HISTORY handler (which runs on the GUI thread via a queued
+    signal), and re-subscribes on every period switch; the trading/tick-
+    monitor widgets subscribe on user input. A blocking subscribe there
+    freezes the window for the round-trip — exactly the "GUI hangs when
+    pulling data" symptom. Off-loading to a daemon thread keeps the GUI
+    responsive; the broker SDK's own request context serializes concurrent
+    calls, so thread-per-subscribe is safe.
+
+    class MyGateway(NonBlockingSubscribeMixin, BaseGateway):
+        def _subscribe(self, req: SubscribeRequest) -> None:
+            ...  # the actual (blocking) subscribe call
+
+    subscribe() is provided here and should not be overridden.
+    """
+
+    def subscribe(self, req: object) -> None:
+        threading.Thread(target=self._subscribe, args=(req,), daemon=True).start()
+
+    def _subscribe(self, req: object) -> None:
+        raise NotImplementedError(
+            f"{type(self).__name__} must implement _subscribe(self, req) "
+            f"— NonBlockingSubscribeMixin only provides the non-blocking subscribe() wrapper."
+        )
