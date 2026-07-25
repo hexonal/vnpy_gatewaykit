@@ -14,6 +14,12 @@ threading.Thread wrapper from scratch.
 from __future__ import annotations
 
 import threading
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    # Type-only: this kit stays importable without pulling vnpy at runtime,
+    # and `from __future__ import annotations` keeps the annotations lazy.
+    from vnpy.trader.object import SubscribeRequest
 
 
 class NonBlockingConnectMixin:
@@ -58,10 +64,15 @@ class NonBlockingSubscribeMixin:
     subscribe() is provided here and should not be overridden.
     """
 
-    def subscribe(self, req: object) -> None:
+    # Typed as SubscribeRequest, not object: a gateway's _subscribe naturally
+    # takes SubscribeRequest, and narrowing a parameter in an override violates
+    # substitutability — every gateway using this mixin was flagged for it.
+    # This is also the true contract; BaseGateway.subscribe is declared the same
+    # way, so the mixin now lines up with what it is standing in for.
+    def subscribe(self, req: SubscribeRequest) -> None:
         threading.Thread(target=self._subscribe, args=(req,), daemon=True).start()
 
-    def _subscribe(self, req: object) -> None:
+    def _subscribe(self, req: SubscribeRequest) -> None:
         raise NotImplementedError(
             f"{type(self).__name__} must implement _subscribe(self, req) "
             f"— NonBlockingSubscribeMixin only provides the non-blocking subscribe() wrapper."
