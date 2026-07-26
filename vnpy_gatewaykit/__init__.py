@@ -23,10 +23,12 @@ from .bar_label import (
     normalize_bars,
     relabel_stored_bars,
     start_label_on_grid,
+    stored_label_version,
     to_start_label,
 )
 from .market_clock import localize, market_tz
 from .nonblocking import NonBlockingConnectMixin, NonBlockingSubscribeMixin
+from .query_window import localize_bound, query_tz
 from .reject import RejectOrderMixin
 from .sessions import (
     ALL_KINDS,
@@ -112,15 +114,18 @@ __all__ = [
     "is_trusted",
     "label_spec",
     "localize",
+    "localize_bound",
     "market_tz",
     "next_window_change",
     "normalization_enabled",
     "normalize_bars",
     "open_seconds_between",
     "previous_close",
+    "query_tz",
     "relabel_stored_bars",
     "sessions_for",
     "start_label_on_grid",
+    "stored_label_version",
     "supported_exchanges",
     "to_start_label",
     "windows",

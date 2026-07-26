@@ -93,6 +93,7 @@ __all__ = [
     "normalize_bars",
     "relabel_stored_bars",
     "start_label_on_grid",
+    "stored_label_version",
     "to_start_label",
 ]
 
@@ -304,6 +305,27 @@ def assert_trusted(source: str, interval: Interval) -> None:
         raise ValueError(
             f"{source} 的 {interval.value} 周期数据不可用于落库: {spec.evidence}"
         )
+
+
+def stored_label_version(
+    source: str, interval: Interval, *, enabled: bool | None = None
+) -> int:
+    """本进程此刻写出的这段 (源, 周期) 序列属于哪个落库口径。
+
+    写库方要往 :class:`LabelLedger` 记版本，就必须先算出"我这批 bar 是 v1 还是
+    v2"。这个判定和 :func:`to_start_label` 是同一个分支条件，放在这里由写库方调用，
+    而不是让每个写库方各自复述一遍 —— 复述错了台账就记错版本，而记错版本的台账
+    比没有台账更糟(它会放行真正的混口径写入)。
+
+    判据就是"这根 bar 会不会被平移":只有 ``spec.normalizable`` 且该周期有
+    session 栅格的组合才会被归一改动，其余组合(START / SESSION_DATE / UNKNOWN /
+    无栅格)在开关两个状态下产出**完全相同**的 datetime，因此它们永远符合当前
+    口径 —— 把它们记成 v1 会在开关翻转那天造出一个不存在的冲突。
+    """
+    spec = label_spec(source, interval)
+    if not spec.normalizable or interval not in _PERIODS:
+        return LABEL_SCHEMA_VERSION
+    return LABEL_SCHEMA_VERSION if _resolve_enabled(enabled) else RAW_LABEL_SCHEMA_VERSION
 
 
 # ---------------------------------------------------------------------------

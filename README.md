@@ -1,21 +1,40 @@
 # vnpy_gatewaykit
 
-Broker-agnostic mixins extracted from `vnpy_futu` for a
-[VeighNa (vnpy)](https://github.com/vnpy/vnpy) fork — the plumbing every
-real gateway ends up re-deriving, separated out so the next gateway
-package (e.g. a future `vnpy_longbridge`) doesn't copy-paste it.
+Broker-agnostic plumbing for a [VeighNa (vnpy)](https://github.com/vnpy/vnpy)
+fork — what every real gateway ends up re-deriving, separated out so the next
+gateway package (e.g. a future `vnpy_longbridge`) doesn't copy-paste it.
 
-## Why this exists, and why it's small
+## Why this exists, and what may live here
 
 `vnpy_futu` is currently the only real gateway implementation in this
 project. Everything broker-specific in it (symbol/exchange mapping,
 enum conversions, the actual SDK calls) has no business being "shared" —
 Futu's wire format and Longbridge's wire format are fundamentally
 different, and abstracting over a sample size of one is how you end up
-with the wrong abstraction. What *did* turn out to be broker-agnostic —
-verified by literally extracting it out of `vnpy_futu`'s working,
-tested code, not designed speculatively — is exactly the two mixins
-below. Nothing else moved here on a guess.
+with the wrong abstraction. The bar for moving something here is therefore
+evidence, not symmetry: the mixins were extracted from `vnpy_futu`'s working
+tested code rather than designed speculatively, and the market/label modules
+exist because their content is *measured* (session tables, cross-source label
+comparisons) and would otherwise be re-measured, or worse re-guessed, per
+gateway.
+
+| Module | What it is |
+|---|---|
+| `nonblocking` | `NonBlockingConnectMixin` / `NonBlockingSubscribeMixin` — see below |
+| `reject` | `RejectOrderMixin` — see below |
+| `suppress` | `SuppressContractMixin`: a trade gateway in a split quote/trade setup pushes no `EVENT_CONTRACT` (contracts come from the quote gateway; see `vnpy_router`), optionally feeding a `contract_sink` instead |
+| `market_clock` | Per-exchange timezone table + `localize()`: brokers stamp naive market-local time, the DB stores UTC |
+| `sessions` | HK/US session windows (auction / regular / extended), holiday calendars, "when does the state next change" |
+| `query_window` | Which timezone a gateway's history query bounds are expressed in |
+| `tick_filter` | Dropping the non-ticks a feed emits (stale/empty snapshots) |
+| `bar_label` | Measured label semantics per (source, interval) — futu's intraday bars are END-labelled, uSMART/longbridge are START — plus normalization to vnpy's START convention, `stored_label_version()`, and `LabelLedger`, the ledger that keeps a series' stored convention from silently changing under it |
+
+`bar_label`'s normalization ships **off** (`VNPY_BAR_LABEL_NORMALIZE`): turning
+it on changes new bars' timestamps, so a series stored under the old convention
+must be migrated (`relabel_stored_bars`) first. `LabelLedger` is what makes the
+flip safe — a writer records the convention it wrote (`stored_label_version()`)
+and refuses a series stored under the other one. `vnpy_recorder` does this on
+every backfill; any other writer into the same tables should too.
 
 ## `NonBlockingConnectMixin`
 
