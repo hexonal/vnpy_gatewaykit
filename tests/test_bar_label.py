@@ -13,6 +13,7 @@ from pathlib import Path
 import pytest
 from vnpy.trader.constant import Exchange, Interval
 from vnpy.trader.object import BarData
+
 from vnpy_gatewaykit.bar_label import (
     ENV_SWITCH,
     LABEL_SCHEMA_VERSION,

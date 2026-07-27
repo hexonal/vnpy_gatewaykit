@@ -3,7 +3,6 @@ from __future__ import annotations
 import time
 
 import pytest
-
 from vnpy.event import EventEngine
 from vnpy.trader.gateway import BaseGateway
 
@@ -45,7 +44,9 @@ def event_engine():
     yield engine
 
 
-def test_connect_returns_immediately_even_when_connect_work_is_slow(event_engine: EventEngine) -> None:
+def test_connect_returns_immediately_even_when_connect_work_is_slow(
+    event_engine: EventEngine,
+) -> None:
     SLOW_SECONDS = 0.3
     gw = SlowGateway(event_engine, "SLOW", SLOW_SECONDS)
 

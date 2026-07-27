@@ -9,7 +9,6 @@ normalizable + 有没有栅格),复述错了台账就记错版本 —— 一个�
 from __future__ import annotations
 
 import pytest
-
 from vnpy.trader.constant import Interval
 
 from vnpy_gatewaykit.bar_label import (

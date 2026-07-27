@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    # ubuntu 而非 windows：本包无 Qt、无 ta-lib 依赖，纯逻辑 + 时区表，
+    # 在 Linux 上跑得更快也更便宜。真正需要 Windows 的是 vnpy 本体（ta-lib wheel）。
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # 与 vnpy 本体 CI 对齐。注意本包 requires-python 是 >=3.10，
+          # 而 lint 的目标版本由 pyproject 的 [tool.ruff] target-version 钉死，
+          # 不随 runner 的解释器漂移。
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy pytest
+          # -e . 会按 pyproject 的 dependencies 装 vnpy（PyPI 上游）。
+          # 本包只用上游稳定 API（vnpy.trader.constant/object/gateway、vnpy.event），
+          # 已核对这些符号在 4.4.0 里全部存在，所以不需要私有 fork 也能检查。
+          pip install -e .
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Type check
+        run: mypy --strict vnpy_gatewaykit
+
+      # 这一步是本 workflow 存在的主要理由。vnpy 与 vnpy_ctastrategy 的既有 CI
+      # 只跑 ruff/mypy/build，一个用例都不执行 —— 而本包里是限流退避、时区归一、
+      # 拒单守卫这类东西，写错了不会有语法错也不会有类型错，只会在实盘上安静地
+      # 做错事。
+      - name: Test
+        run: pytest tests -q

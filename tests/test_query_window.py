@@ -20,7 +20,6 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 import pytest
-
 from vnpy.trader.constant import Exchange
 from vnpy.trader.database import DB_TZ
 

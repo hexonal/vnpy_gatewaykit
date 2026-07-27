@@ -17,7 +17,8 @@ overrides on_contract; every other gateway callback is unchanged.
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from vnpy.trader.object import ContractData
 

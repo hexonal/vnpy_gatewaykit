@@ -4,7 +4,6 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 
 import pytest
-
 from vnpy.trader.constant import Exchange
 
 from vnpy_gatewaykit import localize, market_tz

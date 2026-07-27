@@ -10,6 +10,7 @@ from __future__ import annotations
 import threading
 
 import pytest
+
 from vnpy_gatewaykit.ratelimit import (
     BackoffPolicy,
     BackoffRegistry,

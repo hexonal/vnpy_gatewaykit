@@ -14,7 +14,7 @@ threading.Thread wrapper from scratch.
 from __future__ import annotations
 
 import threading
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     # Type-only: this kit stays importable without pulling vnpy at runtime,
@@ -29,14 +29,14 @@ class NonBlockingConnectMixin:
     connect() itself is provided here and should not be overridden.
 
     class MyGateway(NonBlockingConnectMixin, BaseGateway):
-        def _connect(self, setting: dict) -> None:
+        def _connect(self, setting: dict[str, Any]) -> None:
             ...  # the actual (potentially slow) connection logic
     """
 
-    def connect(self, setting: dict) -> None:
+    def connect(self, setting: dict[str, Any]) -> None:
         threading.Thread(target=self._connect, args=(setting,), daemon=True).start()
 
-    def _connect(self, setting: dict) -> None:
+    def _connect(self, setting: dict[str, Any]) -> None:
         raise NotImplementedError(
             f"{type(self).__name__} must implement _connect(self, setting) "
             f"— NonBlockingConnectMixin only provides the non-blocking connect() wrapper."

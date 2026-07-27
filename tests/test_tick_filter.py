@@ -19,6 +19,7 @@ from zoneinfo import ZoneInfo
 import pytest
 from vnpy.trader.constant import Exchange
 from vnpy.trader.object import TickData
+
 from vnpy_gatewaykit.tick_filter import (
     SAFE_RULES,
     STRICT_RULES,

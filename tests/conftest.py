@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections.abc import Iterator
 
 import pytest
-
 from vnpy.event import Event, EventEngine
 from vnpy.trader.constant import Exchange
 

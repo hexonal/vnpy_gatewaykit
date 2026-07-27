@@ -13,7 +13,6 @@ from datetime import date, datetime, time, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 import pytest
-
 from vnpy.trader.constant import Exchange
 
 from vnpy_gatewaykit.sessions import (
