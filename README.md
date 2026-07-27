@@ -27,6 +27,7 @@ gateway.
 | `sessions` | HK/US session windows (auction / regular / extended), holiday calendars, "when does the state next change" |
 | `query_window` | Which timezone a gateway's history query bounds are expressed in |
 | `tick_filter` | Dropping the non-ticks a feed emits (stale/empty snapshots) |
+| `ratelimit` | `RateLimitBackoff` / `BackoffRegistry` — what to do after a broker says "you are going too fast"; see below |
 | `bar_label` | Measured label semantics per (source, interval) — futu's intraday bars are END-labelled, uSMART/longbridge are START — plus normalization to vnpy's START convention, `stored_label_version()`, and `LabelLedger`, the ledger that keeps a series' stored convention from silently changing under it |
 
 `bar_label`'s normalization ships **off** (`VNPY_BAR_LABEL_NORMALIZE`): turning
@@ -54,6 +55,39 @@ precisely: a rejected order still needs a locally-assigned unique
 orderid, a pushed `OrderData` with `Status.REJECTED`, and a returned
 `vt_orderid` — not an exception, not an empty string. `self._reject(req,
 reason)` does exactly that bookkeeping.
+
+## `ratelimit`
+
+Detecting a rate limit is broker-specific — uSMART answers `code=429` inside
+its JSON envelope, an HTTP gateway answers with status 429 and `Retry-After`,
+futu's OpenD answers `RET_ERROR` with a frequency message — so detection stays
+in the broker package. What follows detection is not: escalate the wait, cap
+it, jitter it, stay visible while waiting, and never wait so long that the
+endpoint is effectively retired. That policy lives here.
+
+It is a gate, not a retry loop: it never sleeps and never calls anything. The
+caller asks whether it may send, reports back a refusal or a success, and the
+gate answers with time. That is what separates it from a *transport* retry — a
+TLS hiccup is worth retrying in half a second on the spot, a 429 is worth not
+retrying at all until the window has moved on.
+
+```python
+from vnpy_gatewaykit import BackoffRegistry
+
+gates = BackoffRegistry()          # one gate per endpoint, created on first use
+
+def request(path, body):
+    gate = gates.get(path)
+    if gate.blocked():             # still serving a penalty — do not send
+        raise TooFast(gate.remaining(), report=gate.due_report())
+    reply = send(path, body)
+    if reply.rate_limited:
+        raise TooFast(gate.penalize(retry_after=reply.retry_after))
+    gate.succeed()                 # True on the transition out — log it once
+    return reply
+```
+
+`vnpy_usmart`'s `RateLimitGuard` is a worked example of the broker half.
 
 ## Usage
 

@@ -29,6 +29,12 @@ from .bar_label import (
 from .market_clock import localize, market_tz
 from .nonblocking import NonBlockingConnectMixin, NonBlockingSubscribeMixin
 from .query_window import localize_bound, query_tz
+from .ratelimit import (
+    DEFAULT_POLICY,
+    BackoffPolicy,
+    BackoffRegistry,
+    RateLimitBackoff,
+)
 from .reject import RejectOrderMixin
 from .sessions import (
     ALL_KINDS,
@@ -69,6 +75,7 @@ __all__ = [
     "ALL_KINDS",
     "DARK_STATUSES",
     "DEFAULT_CALENDAR",
+    "DEFAULT_POLICY",
     "ENV_SWITCH",
     "HALT_STATUSES",
     "LABEL_SCHEMA_VERSION",
@@ -83,6 +90,8 @@ __all__ = [
     "SOURCE_USMART",
     "STRICT_RULES",
     "AuctionPolicy",
+    "BackoffPolicy",
+    "BackoffRegistry",
     "Confidence",
     "FilterMode",
     "FilterStats",
@@ -95,6 +104,7 @@ __all__ = [
     "NonBlockingSubscribeMixin",
     "NormalizeReport",
     "Phase",
+    "RateLimitBackoff",
     "RejectOrderMixin",
     "Rule",
     "SeriesKey",
