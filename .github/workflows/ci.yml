@@ -20,9 +20,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           # 与 vnpy 本体 CI 对齐。注意本包 requires-python 是 >=3.10，
           # 而 lint 的目标版本由 pyproject 的 [tool.ruff] target-version 钉死，
