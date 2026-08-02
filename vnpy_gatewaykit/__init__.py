@@ -28,6 +28,14 @@ from .bar_label import (
 )
 from .market_clock import localize, market_tz
 from .nonblocking import NonBlockingConnectMixin, NonBlockingSubscribeMixin
+from .order_stop import (
+    NON_FINITE_HINT,
+    STOP_PATTERN,
+    attach_stop,
+    extract_stop,
+    is_finite,
+    strip_stop,
+)
 from .query_window import localize_bound, query_tz
 from .ratelimit import (
     DEFAULT_POLICY,
@@ -55,6 +63,7 @@ from .sessions import (
     supported_exchanges,
     windows,
 )
+from .spread_table import finest_tick, price_tick, round_to_tick
 from .suppress import SuppressContractMixin
 from .tick_filter import (
     DARK_STATUSES,
@@ -80,6 +89,7 @@ __all__ = [
     "HALT_STATUSES",
     "LABEL_SCHEMA_VERSION",
     "MAX_SCAN_DAYS",
+    "NON_FINITE_HINT",
     "PRE_TRADE_STATUSES",
     "RAW_LABEL_SCHEMA_VERSION",
     "SAFE_RULES",
@@ -88,6 +98,7 @@ __all__ = [
     "SOURCE_LONGBRIDGE",
     "SOURCE_REPLAY",
     "SOURCE_USMART",
+    "STOP_PATTERN",
     "STRICT_RULES",
     "AuctionPolicy",
     "BackoffPolicy",
@@ -119,7 +130,11 @@ __all__ = [
     "WeekdayCalendar",
     "active_session",
     "assert_trusted",
+    "attach_stop",
     "day_close",
+    "extract_stop",
+    "finest_tick",
+    "is_finite",
     "is_open",
     "is_trusted",
     "label_spec",
@@ -131,11 +146,14 @@ __all__ = [
     "normalize_bars",
     "open_seconds_between",
     "previous_close",
+    "price_tick",
     "query_tz",
     "relabel_stored_bars",
+    "round_to_tick",
     "sessions_for",
     "start_label_on_grid",
     "stored_label_version",
+    "strip_stop",
     "supported_exchanges",
     "to_start_label",
     "windows",
