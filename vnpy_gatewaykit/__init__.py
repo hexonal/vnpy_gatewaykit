@@ -63,6 +63,12 @@ from .sessions import (
     supported_exchanges,
     windows,
 )
+from .shutdown import (
+    SHUTDOWN_SIGNALS,
+    install_shutdown_handlers,
+    shutdown_requested,
+    verify_owns_signals,
+)
 from .spread_table import finest_tick, price_tick, round_to_tick
 from .suppress import SuppressContractMixin
 from .tick_filter import (
@@ -93,6 +99,7 @@ __all__ = [
     "PRE_TRADE_STATUSES",
     "RAW_LABEL_SCHEMA_VERSION",
     "SAFE_RULES",
+    "SHUTDOWN_SIGNALS",
     "SOURCE_FUTU",
     "SOURCE_LABELS",
     "SOURCE_LONGBRIDGE",
@@ -134,6 +141,7 @@ __all__ = [
     "day_close",
     "extract_stop",
     "finest_tick",
+    "install_shutdown_handlers",
     "is_finite",
     "is_open",
     "is_trusted",
@@ -151,10 +159,12 @@ __all__ = [
     "relabel_stored_bars",
     "round_to_tick",
     "sessions_for",
+    "shutdown_requested",
     "start_label_on_grid",
     "stored_label_version",
     "strip_stop",
     "supported_exchanges",
     "to_start_label",
+    "verify_owns_signals",
     "windows",
 ]
